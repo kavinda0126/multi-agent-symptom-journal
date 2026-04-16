@@ -1,0 +1,18 @@
+Day 1 - Monday April 7:
+Headache severity 7, started at 2pm, lasted 3 hours
+Fatigue severity 5, all day
+
+Day 2 - Tuesday April 8:
+No symptoms
+
+Day 3 - Wednesday April 9:
+Headache severity 8, started at 3pm, lasted 2 hours
+Nausea severity 4, evening
+
+Day 4 - Thursday April 10:
+Fatigue severity 6, morning and afternoon
+Back pain severity 4, all day
+
+Day 5 - Friday April 11:
+Headache severity 6, started at 2pm
+Fatigue severity 4, morning
