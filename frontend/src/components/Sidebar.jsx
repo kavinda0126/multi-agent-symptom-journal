@@ -30,10 +30,26 @@ function agentStatus(agentId, currentAgent, status) {
 }
 
 const RISK_STYLES = {
-  LOW:    { bar: 'bg-emerald-400', badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
-  MEDIUM: { bar: 'bg-amber-400',   badge: 'bg-amber-50 text-amber-700 ring-amber-200'       },
-  HIGH:   { bar: 'bg-orange-400',  badge: 'bg-orange-50 text-orange-700 ring-orange-200'    },
-  URGENT: { bar: 'bg-red-500',     badge: 'bg-red-50 text-red-700 ring-red-200'             },
+  LOW:    { badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200', dot: 'bg-emerald-400', bar: 'bg-emerald-100', fill: 'bg-emerald-400' },
+  MEDIUM: { badge: 'bg-amber-50 text-amber-700 ring-amber-200',       dot: 'bg-amber-400',   bar: 'bg-amber-100',   fill: 'bg-amber-400'   },
+  HIGH:   { badge: 'bg-orange-50 text-orange-700 ring-orange-200',    dot: 'bg-orange-500',  bar: 'bg-orange-100',  fill: 'bg-orange-500'  },
+  URGENT: { badge: 'bg-red-50 text-red-700 ring-red-200',             dot: 'bg-red-500',     bar: 'bg-red-100',     fill: 'bg-red-500'     },
+}
+
+const LEVEL_ORDER = { LOW: 1, MEDIUM: 2, HIGH: 3, URGENT: 4 }
+const LEVEL_WIDTH  = { LOW: '25%', MEDIUM: '50%', HIGH: '75%', URGENT: '100%' }
+
+// Extract symptom name from raw dict strings like {'Name': 'Cephalalgia', 'Severity': 7}
+function parseSymptomName(raw) {
+  if (!raw) return ''
+  if (typeof raw === 'string') {
+    const m = raw.match(/['"](?:name|Name|symptom_name)['"]:\s*['"]([^'"]+)['"]/i)
+    if (m) return m[1]
+    // strip any remaining dict-like chars
+    return raw.replace(/[{}'"]/g, '').replace(/\w+:/g, '').trim()
+  }
+  if (typeof raw === 'object') return raw.name || raw.symptom_name || String(raw)
+  return String(raw)
 }
 
 export default function Sidebar({ currentAgent, status, risks, suggestions }) {
@@ -123,24 +139,38 @@ export default function Sidebar({ currentAgent, status, risks, suggestions }) {
       {/* Risk Flags */}
       {risks && risks.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center">
-              <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center">
+                <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h2 className="text-sm font-bold text-slate-800">Risk Flags</h2>
             </div>
-            <h2 className="text-sm font-bold text-slate-800">Risk Flags</h2>
+            <span className="text-xs text-slate-400 font-medium">{risks.filter(r => r.symptom).length} detected</span>
           </div>
-          <div className="p-4 space-y-2">
+          <div className="p-4 space-y-3">
             {risks.filter(r => r.symptom).map((r, i) => {
-              const style = RISK_STYLES[r.level] || { badge: 'bg-slate-50 text-slate-600 ring-slate-200' }
+              const style  = RISK_STYLES[r.level] || RISK_STYLES.MEDIUM
+              const name   = parseSymptomName(r.symptom)
+              const width  = LEVEL_WIDTH[r.level] || '50%'
               return (
-                <div key={i} className="flex items-center justify-between gap-2 bg-slate-50 rounded-xl px-3 py-2.5">
-                  <span className="text-sm text-slate-700 capitalize">{r.symptom}</span>
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ring-1 ${style.badge}`}>
-                    {r.level}
-                  </span>
+                <div key={i} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${style.dot}`} />
+                      <span className="text-sm font-medium text-slate-700 capitalize">{name}</span>
+                    </div>
+                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ring-1 ${style.badge}`}>
+                      {r.level}
+                    </span>
+                  </div>
+                  <div className={`h-1.5 rounded-full ${style.bar}`}>
+                    <div className={`h-1.5 rounded-full transition-all duration-700 ${style.fill}`}
+                      style={{ width }} />
+                  </div>
                 </div>
               )
             })}
