@@ -1,4 +1,4 @@
-from langchain_community.llms import Ollama
+from langchain_ollama import OllamaLLM as Ollama
 from core.state import SymptomJournalState
 from core.logger import log_event
 from agent1_intake.tool import parse_symptoms
@@ -31,11 +31,27 @@ def run_agent1(state: SymptomJournalState) -> SymptomJournalState:
     import json, re
     try:
         json_str = re.search(r'\[.*\]', response, re.DOTALL).group()
-        state["structured_symptoms"] = json.loads(json_str)
+        parsed = json.loads(json_str)
+        # ensure each item is a dict with a string symptom_name
+        symptoms = []
+        for s in parsed:
+            if isinstance(s, dict):
+                name = s.get("symptom_name", "")
+                if isinstance(name, list):
+                    s["symptom_name"] = str(name[0]) if name else "unknown"
+                elif isinstance(name, dict):
+                    s["symptom_name"] = str(next(iter(name.values()), "unknown"))
+                elif not isinstance(name, str):
+                    s["symptom_name"] = str(name) if name else "unknown"
+                symptoms.append(s)
+        state["structured_symptoms"] = symptoms
     except Exception:
         state["structured_symptoms"] = []
 
-    state["symptom_terms"] = {s.get("symptom_name", ""): s.get("symptom_name", "")
-                               for s in state["structured_symptoms"]}
+    state["symptom_terms"] = {
+        s.get("symptom_name", ""): s.get("symptom_name", "")
+        for s in state["structured_symptoms"]
+        if isinstance(s, dict) and isinstance(s.get("symptom_name", ""), str)
+    }
     log_event("agent1", "output", {"symptoms_extracted": len(state["structured_symptoms"])})
     return state
