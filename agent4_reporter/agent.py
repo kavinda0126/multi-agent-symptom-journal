@@ -1,4 +1,4 @@
-from langchain_community.llms import Ollama
+from langchain_ollama import OllamaLLM as Ollama
 from core.state import SymptomJournalState
 from core.logger import log_event
 from agent4_reporter.tool import write_report
