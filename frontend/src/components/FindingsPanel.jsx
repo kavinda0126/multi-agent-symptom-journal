@@ -1,13 +1,16 @@
 function stripMarkdown(text) {
   return text
-    .replace(/<think>[\s\S]*?<\/think>/g, '')
-    .replace(/\*\*(.*?)\*\*/g, '$1')
-    .replace(/\*(.*?)\*/g, '$1')
-    .replace(/#{1,6}\s+/g, '')
-    .replace(/`/g, '')
-    .replace(/^\s*[-*]\s+/gm, '• ')
-    .replace(/^\s*\d+\.\s+/gm, '')
-    .replace(/\n{3,}/g, '\n\n')
+    .replace(/<think>[\s\S]*?<\/think>/g, '')  // remove think blocks
+    .replace(/\\\([\s\S]*?\\\)/g, '')           // remove LaTeX \( ... \)
+    .replace(/\$[\s\S]*?\$/g, '')               // remove LaTeX $...$
+    .replace(/\*\*(.*?)\*\*/g, '$1')            // strip bold
+    .replace(/\*(.*?)\*/g, '$1')                // strip italic
+    .replace(/#{1,6}\s+/gm, '')                 // strip headings
+    .replace(/^-{2,}$/gm, '')                   // strip --- dividers
+    .replace(/`/g, '')                          // strip code ticks
+    .replace(/^\s*[-*]\s+/gm, '• ')             // normalise bullets
+    .replace(/^\s*\d+\.\s+/gm, '')              // strip numbered lists
+    .replace(/\n{3,}/g, '\n\n')                 // collapse excess blank lines
     .trim()
 }
 

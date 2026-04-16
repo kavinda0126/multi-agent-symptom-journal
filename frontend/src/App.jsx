@@ -90,7 +90,7 @@ export default function App() {
           </div>
           <div className="hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-white text-xs font-medium">SE4010 CTSE — Assignment 2</span>
+            <span className="text-white text-xs font-medium">Powered by Ollama · LangGraph</span>
           </div>
         </div>
       </header>

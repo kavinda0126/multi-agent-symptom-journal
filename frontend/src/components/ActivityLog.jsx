@@ -1,11 +1,35 @@
+function cleanLine(line) {
+  return line
+    .replace(/<think>[\s\S]*?<\/think>/g, '')
+    .replace(/\\\(.*?\\\)/g, '')           // remove LaTeX inline math \( ... \)
+    .replace(/\$.*?\$/g, '')               // remove LaTeX $...$ math
+    .replace(/^#{1,6}\s+/g, '')            // remove leading # headings
+    .replace(/^-{2,}$/g, '')               // remove --- dividers
+    .replace(/\*\*(.*?)\*\*/g, '$1')       // strip bold
+    .replace(/\*(.*?)\*/g, '$1')           // strip italic
+    .replace(/`/g, '')                     // strip code ticks
+    .trim()
+}
+
 function renderReport(text) {
   if (!text) return null
-  const sections = text.split(/\n(?=## )/)
+
+  // Split on ## or #### section headers
+  const sections = text.split(/\n(?=#{1,4} )/)
+
   return sections.map((section, i) => {
     const lines   = section.split('\n')
-    const heading = lines[0].replace(/^##\s*/, '').trim()
+    const rawHead = lines[0]
+    const heading = rawHead.replace(/^#{1,6}\s*/, '').replace(/\*\*/g, '').trim()
     const body    = lines.slice(1).join('\n').trim()
-    const items   = body.split('\n').filter(l => l.trim())
+
+    // Filter out pure divider lines and empty lines
+    const items = body.split('\n').filter(l => {
+      const t = l.trim()
+      return t && !/^-{2,}$/.test(t) && !/^#{1,6}\s/.test(t)
+    })
+
+    if (!heading && items.length === 0) return null
 
     return (
       <div key={i} className={`${i < sections.length - 1 ? 'pb-5 mb-5 border-b border-slate-100' : ''}`}>
@@ -17,9 +41,9 @@ function renderReport(text) {
         )}
         <div className="space-y-1.5">
           {items.map((line, j) => {
-            const clean   = line.replace(/^[-*]\s*/, '').replace(/\*\*(.*?)\*\*/g, '$1').trim()
+            const isBullet = /^[\-*•]\s/.test(line.trim())
+            const clean    = cleanLine(line.replace(/^[\-*•]\s*/, ''))
             if (!clean) return null
-            const isBullet = /^[-*]/.test(line.trim())
             return (
               <p key={j} className={`text-sm text-slate-600 leading-relaxed ${isBullet ? 'flex gap-2.5 items-start' : ''}`}>
                 {isBullet && (
