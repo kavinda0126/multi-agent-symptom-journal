@@ -149,12 +149,25 @@ export default function Sidebar({ currentAgent, status, risks, suggestions }) {
               </div>
               <h2 className="text-sm font-bold text-slate-800">Risk Flags</h2>
             </div>
-            <span className="text-xs text-slate-400 font-medium">{risks.filter(r => r.symptom).length} detected</span>
+            <span className="text-xs text-slate-400 font-medium">
+              {[...new Set(risks.filter(r => r.symptom).map(r => parseSymptomName(r.symptom).toLowerCase()))].filter(Boolean).length} detected
+            </span>
           </div>
           <div className="p-4 space-y-3">
-            {risks.filter(r => r.symptom).map((r, i) => {
+            {(() => {
+              // Deduplicate by symptom name — keep highest risk level
+              const seen = {}
+              for (const r of risks.filter(r => r.symptom)) {
+                const name = parseSymptomName(r.symptom).toLowerCase()
+                if (!name) continue
+                if (!seen[name] || (LEVEL_ORDER[r.level] || 0) > (LEVEL_ORDER[seen[name].level] || 0)) {
+                  seen[name] = { ...r, _name: parseSymptomName(r.symptom) }
+                }
+              }
+              return Object.values(seen).sort((a, b) => (LEVEL_ORDER[b.level] || 0) - (LEVEL_ORDER[a.level] || 0))
+            })().map((r, i) => {
               const style  = RISK_STYLES[r.level] || RISK_STYLES.MEDIUM
-              const name   = parseSymptomName(r.symptom)
+              const name   = r._name
               const width  = LEVEL_WIDTH[r.level] || '50%'
               return (
                 <div key={i} className="space-y-1.5">

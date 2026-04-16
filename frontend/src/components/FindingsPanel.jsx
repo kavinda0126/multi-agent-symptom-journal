@@ -38,7 +38,14 @@ const SYMPTOM_COLORS = [
 export default function FindingsPanel({ patterns, weather, symptoms }) {
   if (!patterns || Object.keys(patterns).length === 0) return null
 
-  const sortedPatterns = Object.entries(patterns).filter(([k]) => k).sort((a, b) => b[1] - a[1])
+  // Deduplicate by parsed name — merge counts for same symptom
+  const merged = {}
+  for (const [raw, count] of Object.entries(patterns)) {
+    const name = parseSymptomName(raw).toLowerCase()
+    if (!name || name === 'unknown') continue
+    merged[name] = (merged[name] || 0) + count
+  }
+  const sortedPatterns = Object.entries(merged).sort((a, b) => b[1] - a[1])
   const maxCount       = sortedPatterns[0]?.[1] || 1
   const rawAnalysis    = weather?.llm_analysis || ''
   const cleanAnalysis  = stripMarkdown(rawAnalysis)
@@ -63,7 +70,7 @@ export default function FindingsPanel({ patterns, weather, symptoms }) {
             {sortedPatterns.slice(0, 6).map(([name, count], i) => (
               <div key={name}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-medium text-slate-600 capitalize truncate max-w-[60%]">{parseSymptomName(name)}</span>
+                  <span className="text-xs font-medium text-slate-600 capitalize truncate max-w-[60%]">{name}</span>
                   <span className="text-xs font-bold text-slate-500">{count}x</span>
                 </div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
