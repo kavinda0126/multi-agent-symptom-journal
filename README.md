@@ -2,17 +2,6 @@
 
 Agentic AI-Powered Multi-Agent System for Symptom Journal Analysis, Health Pattern Detection and Personalised Medical Report Generation.
 
-**SE4010 CTSE — Assignment 2**
-
-## Team
-
-| Member | Agent | Model |
-|---|---|---|
-| Kavinda | Agent 1 — Symptom Intake | llama3.2:3b-instruct-q4_K_M |
-| Rachith | Agent 2 — Pattern Detection | deepseek-r1:7b-qwen-distill-q4_K_M |
-| Tharindu | Agent 3 — Risk Assessment | deepseek-r1:7b-qwen-distill-q4_K_M |
-| Githadi | Agent 4 — Report Writer | llama3.2:3b-instruct-q4_K_M |
-
 ## Setup
 
 ### 1. Pull Ollama models
