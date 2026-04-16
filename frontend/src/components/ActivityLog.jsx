@@ -8,18 +8,23 @@ function renderReport(text) {
     const items   = body.split('\n').filter(l => l.trim())
 
     return (
-      <div key={i} className={`pb-4 ${i < sections.length - 1 ? 'border-b border-gray-100 mb-4' : ''}`}>
+      <div key={i} className={`${i < sections.length - 1 ? 'pb-5 mb-5 border-b border-slate-100' : ''}`}>
         {heading && (
-          <h3 className="text-sm font-bold text-blue-700 uppercase tracking-wide mb-2">{heading}</h3>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-4 rounded-full bg-gradient-to-b from-blue-500 to-indigo-500" />
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">{heading}</h3>
+          </div>
         )}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {items.map((line, j) => {
-            const clean = line.replace(/^[-*]\s*/, '').replace(/\*\*(.*?)\*\*/g, '$1').trim()
+            const clean   = line.replace(/^[-*]\s*/, '').replace(/\*\*(.*?)\*\*/g, '$1').trim()
             if (!clean) return null
             const isBullet = /^[-*]/.test(line.trim())
             return (
-              <p key={j} className={`text-sm text-gray-700 leading-relaxed ${isBullet ? 'flex gap-2' : ''}`}>
-                {isBullet && <span className="text-blue-400 flex-shrink-0 mt-0.5">•</span>}
+              <p key={j} className={`text-sm text-slate-600 leading-relaxed ${isBullet ? 'flex gap-2.5 items-start' : ''}`}>
+                {isBullet && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0 mt-2" />
+                )}
                 <span>{clean}</span>
               </p>
             )
@@ -63,38 +68,65 @@ export default function ActivityLog({ report, reportPath, medlineLinks }) {
 
   return (
     <div className="space-y-4">
+      {/* Health Resources */}
       {medlineLinks && medlineLinks.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-md p-5">
-          <h2 className="text-lg font-bold text-gray-800 mb-3">Health Resources</h2>
-          <ul className="space-y-2">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center">
+              <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+            </div>
+            <h2 className="text-sm font-bold text-slate-800">Health Resources</h2>
+          </div>
+          <ul className="p-4 space-y-2">
             {medlineLinks.map((link, i) => (
-              <li key={i} className="text-sm flex items-center gap-2">
-                <span className="text-blue-400">→</span>
-                <a href={link.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">
+              <li key={i} className="flex items-center gap-3 bg-slate-50 rounded-xl px-3 py-2.5 hover:bg-teal-50 transition-colors group">
+                <div className="w-6 h-6 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0 group-hover:bg-teal-200 transition-colors">
+                  <svg className="w-3 h-3 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+                <a href={link.url} target="_blank" rel="noreferrer"
+                  className="text-sm text-blue-700 hover:text-blue-900 font-medium hover:underline flex-1 truncate">
                   {link.title}
                 </a>
-                <span className="text-gray-400 capitalize">({link.symptom})</span>
+                <span className="text-xs text-slate-400 capitalize flex-shrink-0 bg-white rounded-full px-2 py-0.5 ring-1 ring-slate-200">
+                  {link.symptom}
+                </span>
               </li>
             ))}
           </ul>
         </div>
       )}
 
+      {/* Report */}
       {report && (
-        <div className="bg-white rounded-2xl shadow-md p-5">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-lg font-bold text-gray-800">Health Report</h2>
-              {reportPath && (
-                <p className="text-xs text-gray-400 font-mono mt-0.5">{reportPath.split(/[/\\]/).pop()}</p>
-              )}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-800">Health Report</h2>
+                {reportPath && (
+                  <p className="text-xs text-slate-400 font-mono mt-0.5">{reportPath.split(/[/\\]/).pop()}</p>
+                )}
+              </div>
             </div>
             <button
               onClick={downloadPDF}
-              className="flex items-center gap-1.5 bg-blue-600 text-white text-sm px-3 py-1.5
-                         rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600
+                         text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm shadow-blue-200
+                         hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -102,8 +134,10 @@ export default function ActivityLog({ report, reportPath, medlineLinks }) {
             </button>
           </div>
 
-          <div className="max-h-[600px] overflow-y-auto bg-gray-50 rounded-xl p-5">
-            {renderReport(report)}
+          <div className="p-5 max-h-[600px] overflow-y-auto">
+            <div className="bg-slate-50 rounded-xl p-5">
+              {renderReport(report)}
+            </div>
           </div>
         </div>
       )}

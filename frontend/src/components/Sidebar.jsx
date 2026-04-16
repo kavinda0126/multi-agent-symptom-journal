@@ -1,82 +1,143 @@
 const AGENTS = [
-  { id: 'agent1', label: 'Symptom Intake',    model: 'llama3.2:3b'    },
-  { id: 'agent2', label: 'Pattern Detection', model: 'deepseek-r1:7b'  },
-  { id: 'agent3', label: 'Risk Assessment',   model: 'deepseek-r1:7b'  },
-  { id: 'agent4', label: 'Report Writer',     model: 'llama3.2:3b'    },
+  {
+    id: 'agent1', label: 'Symptom Intake', model: 'llama3.2:3b',
+    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+  },
+  {
+    id: 'agent2', label: 'Pattern Detection', model: 'deepseek-r1:7b',
+    icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+  },
+  {
+    id: 'agent3', label: 'Risk Assessment', model: 'deepseek-r1:7b',
+    icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+  },
+  {
+    id: 'agent4', label: 'Report Writer', model: 'llama3.2:3b',
+    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+  },
 ]
 
 function agentStatus(agentId, currentAgent, status) {
   if (status === 'complete' || currentAgent === 'done') return 'done'
   if (!currentAgent) return 'idle'
   const ids = AGENTS.map(a => a.id)
-  const cur  = ids.indexOf(currentAgent)
-  const me   = ids.indexOf(agentId)
+  const cur = ids.indexOf(currentAgent)
+  const me  = ids.indexOf(agentId)
   if (me < cur)  return 'done'
   if (me === cur) return 'running'
   return 'idle'
 }
 
+const RISK_STYLES = {
+  LOW:    { bar: 'bg-emerald-400', badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
+  MEDIUM: { bar: 'bg-amber-400',   badge: 'bg-amber-50 text-amber-700 ring-amber-200'       },
+  HIGH:   { bar: 'bg-orange-400',  badge: 'bg-orange-50 text-orange-700 ring-orange-200'    },
+  URGENT: { bar: 'bg-red-500',     badge: 'bg-red-50 text-red-700 ring-red-200'             },
+}
+
 export default function Sidebar({ currentAgent, status, risks, suggestions }) {
   return (
     <div className="space-y-4">
-      {/* Pipeline progress */}
-      <div className="bg-white rounded-2xl shadow-md p-5">
-        <h2 className="text-lg font-bold text-gray-800 mb-4">Agent Pipeline</h2>
-        <div className="space-y-3">
+      {/* Pipeline */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center">
+            <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+          </div>
+          <h2 className="text-sm font-bold text-slate-800">Agent Pipeline</h2>
+        </div>
+
+        <div className="p-5 space-y-1">
           {AGENTS.map((agent, idx) => {
             const s = agentStatus(agent.id, currentAgent, status)
             return (
-              <div key={agent.id} className="flex items-center gap-3">
-                {/* Step indicator */}
-                <div className="relative flex-shrink-0">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-500
-                    ${s === 'done'    ? 'bg-green-500 border-green-500 text-white' : ''}
-                    ${s === 'running' ? 'bg-blue-500 border-blue-500 text-white animate-pulse' : ''}
-                    ${s === 'idle'    ? 'bg-gray-100 border-gray-300 text-gray-400' : ''}
-                  `}>
-                    {s === 'done' ? '✓' : idx + 1}
+              <div key={agent.id}>
+                <div className={`flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300
+                  ${s === 'running' ? 'bg-blue-50' : s === 'done' ? 'bg-emerald-50/60' : ''}`}>
+
+                  {/* Icon circle */}
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500
+                    ${s === 'done'    ? 'bg-emerald-500 shadow-sm shadow-emerald-200' : ''}
+                    ${s === 'running' ? 'bg-blue-500 shadow-sm shadow-blue-200 animate-pulse' : ''}
+                    ${s === 'idle'    ? 'bg-slate-100' : ''}`}>
+                    {s === 'done' ? (
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className={`w-4 h-4 ${s === 'running' ? 'text-white' : 'text-slate-400'}`}
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={agent.icon} />
+                      </svg>
+                    )}
                   </div>
-                  {idx < AGENTS.length - 1 && (
-                    <div className={`absolute left-4 top-9 w-0.5 h-3 ${s === 'done' ? 'bg-green-400' : 'bg-gray-200'}`} />
+
+                  <div className="min-w-0 flex-1">
+                    <p className={`text-sm font-semibold leading-tight
+                      ${s === 'running' ? 'text-blue-700' : s === 'done' ? 'text-emerald-700' : 'text-slate-400'}`}>
+                      {agent.label}
+                    </p>
+                    <p className={`text-xs mt-0.5 ${s === 'idle' ? 'text-slate-300' : 'text-slate-400'}`}>
+                      {agent.model}
+                    </p>
+                  </div>
+
+                  {s === 'running' && (
+                    <div className="flex gap-0.5">
+                      {[0,1,2].map(i => (
+                        <div key={i} className="w-1 h-1 rounded-full bg-blue-400 animate-bounce"
+                          style={{ animationDelay: `${i * 0.15}s` }} />
+                      ))}
+                    </div>
+                  )}
+                  {s === 'done' && (
+                    <span className="text-xs text-emerald-500 font-medium">Done</span>
                   )}
                 </div>
 
-                {/* Label */}
-                <div className="min-w-0">
-                  <p className={`text-sm font-semibold ${s === 'running' ? 'text-blue-600' : s === 'done' ? 'text-green-700' : 'text-gray-400'}`}>
-                    {agent.label}
-                    {s === 'running' && <span className="ml-2 text-xs font-normal animate-pulse">processing...</span>}
-                  </p>
-                  <p className="text-xs text-gray-400">{agent.model}</p>
-                </div>
+                {idx < AGENTS.length - 1 && (
+                  <div className={`ml-7 w-0.5 h-3 rounded-full transition-colors duration-500
+                    ${s === 'done' ? 'bg-emerald-300' : 'bg-slate-100'}`} />
+                )}
               </div>
             )
           })}
         </div>
 
         {status === 'complete' && (
-          <div className="mt-4 bg-green-50 text-green-700 text-sm rounded-lg px-3 py-2 font-medium text-center">
-            Pipeline complete
+          <div className="mx-5 mb-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm
+                          rounded-xl px-4 py-2.5 font-semibold text-center shadow-sm shadow-emerald-200
+                          flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+            Analysis Complete
           </div>
         )}
       </div>
 
       {/* Risk Flags */}
       {risks && risks.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-md p-5">
-          <h2 className="text-lg font-bold text-gray-800 mb-3">Risk Flags</h2>
-          <div className="space-y-2">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center">
+              <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-sm font-bold text-slate-800">Risk Flags</h2>
+          </div>
+          <div className="p-4 space-y-2">
             {risks.filter(r => r.symptom).map((r, i) => {
-              const colours = {
-                LOW:    'bg-green-100 text-green-700',
-                MEDIUM: 'bg-yellow-100 text-yellow-700',
-                HIGH:   'bg-orange-100 text-orange-700',
-                URGENT: 'bg-red-100 text-red-700',
-              }
+              const style = RISK_STYLES[r.level] || { badge: 'bg-slate-50 text-slate-600 ring-slate-200' }
               return (
-                <div key={i} className="flex justify-between items-center text-sm bg-gray-50 rounded px-3 py-2">
-                  <span className="capitalize text-gray-700">{r.symptom}</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${colours[r.level] || 'bg-gray-100'}`}>
+                <div key={i} className="flex items-center justify-between gap-2 bg-slate-50 rounded-xl px-3 py-2.5">
+                  <span className="text-sm text-slate-700 capitalize">{r.symptom}</span>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ring-1 ${style.badge}`}>
                     {r.level}
                   </span>
                 </div>
@@ -88,12 +149,22 @@ export default function Sidebar({ currentAgent, status, risks, suggestions }) {
 
       {/* Lifestyle Tips */}
       {suggestions && suggestions.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-md p-5">
-          <h2 className="text-lg font-bold text-gray-800 mb-3">Lifestyle Tips</h2>
-          <ul className="space-y-1">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center">
+              <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-sm font-bold text-slate-800">Lifestyle Tips</h2>
+          </div>
+          <ul className="p-4 space-y-2">
             {suggestions.map((s, i) => (
-              <li key={i} className="text-sm text-gray-700 flex gap-2">
-                <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
+              <li key={i} className="flex gap-2.5 text-sm text-slate-600 bg-teal-50/60 rounded-xl px-3 py-2.5">
+                <svg className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
                 <span>{s}</span>
               </li>
             ))}
