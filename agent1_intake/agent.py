@@ -33,16 +33,21 @@ def run_agent1(state: SymptomJournalState) -> SymptomJournalState:
         json_str = re.search(r'\[.*\]', response, re.DOTALL).group()
         parsed = json.loads(json_str)
         # ensure each item is a dict with a string symptom_name
+        INVALID_NAMES = {"unknown", "none", "no symptoms", "no symptom", "n/a", "null", "", "-"}
         symptoms = []
         for s in parsed:
             if isinstance(s, dict):
                 name = s.get("symptom_name", "")
                 if isinstance(name, list):
-                    s["symptom_name"] = str(name[0]) if name else "unknown"
+                    name = str(name[0]) if name else ""
                 elif isinstance(name, dict):
-                    s["symptom_name"] = str(next(iter(name.values()), "unknown"))
+                    name = str(next(iter(name.values()), ""))
                 elif not isinstance(name, str):
-                    s["symptom_name"] = str(name) if name else "unknown"
+                    name = str(name) if name else ""
+                # skip entries with no valid symptom name
+                if name.strip().lower() in INVALID_NAMES:
+                    continue
+                s["symptom_name"] = name.strip()
                 symptoms.append(s)
         state["structured_symptoms"] = symptoms
     except Exception:
