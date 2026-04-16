@@ -1,3 +1,16 @@
+// Parse symptom name from raw dict strings like {'Name': 'Cephalalgia', 'Severity': 7}
+function parseSymptomName(raw) {
+  if (!raw) return 'Unknown'
+  if (typeof raw === 'string') {
+    const m = raw.match(/['"](?:name|Name|symptom_name)['"]:\s*['"]([^'"]+)['"]/i)
+    if (m) return m[1]
+    if (raw.startsWith('{')) return raw.replace(/[{}'"]/g, '').replace(/\w+:/g, '').trim() || 'Unknown'
+    return raw
+  }
+  if (typeof raw === 'object') return raw.name || raw.symptom_name || 'Unknown'
+  return String(raw)
+}
+
 function stripMarkdown(text) {
   return text
     .replace(/<think>[\s\S]*?<\/think>/g, '')  // remove think blocks
@@ -50,7 +63,7 @@ export default function FindingsPanel({ patterns, weather, symptoms }) {
             {sortedPatterns.slice(0, 6).map(([name, count], i) => (
               <div key={name}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-medium text-slate-600 capitalize truncate max-w-[60%]">{name}</span>
+                  <span className="text-xs font-medium text-slate-600 capitalize truncate max-w-[60%]">{parseSymptomName(name)}</span>
                   <span className="text-xs font-bold text-slate-500">{count}x</span>
                 </div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -87,7 +100,7 @@ export default function FindingsPanel({ patterns, weather, symptoms }) {
                     <div className={`text-xs font-bold px-2 py-0.5 rounded-lg min-w-[2.5rem] text-center ${sevColor}`}>
                       {s.severity}
                     </div>
-                    <span className="text-xs text-slate-700 capitalize flex-1 truncate">{s.symptom_name}</span>
+                    <span className="text-xs text-slate-700 capitalize flex-1 truncate">{parseSymptomName(s.symptom_name)}</span>
                     <span className="text-xs text-slate-400 flex-shrink-0">{s.date || s.time_of_day || ''}</span>
                   </div>
                 )

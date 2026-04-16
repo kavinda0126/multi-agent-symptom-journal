@@ -1,11 +1,136 @@
 import { useState, useRef } from 'react'
 
+const SAMPLE_JOURNALS = [
+  {
+    label: 'Migraine & Fatigue (7 days)',
+    city: 'Colombo',
+    text: `Day 1 - Monday April 7:
+Headache severity 7, started at 2pm, lasted 3 hours
+Fatigue severity 5, all day
+
+Day 2 - Tuesday April 8:
+No symptoms
+
+Day 3 - Wednesday April 9:
+Headache severity 8, started at 3pm, lasted 2 hours
+Nausea severity 4, evening
+
+Day 4 - Thursday April 10:
+Fatigue severity 6, morning and afternoon
+Back pain severity 4, all day
+
+Day 5 - Friday April 11:
+Headache severity 6, started at 2pm
+Fatigue severity 4, morning
+
+Day 6 - Saturday April 12:
+No symptoms
+
+Day 7 - Sunday April 13:
+Headache severity 5, afternoon
+Dizziness severity 3, morning`,
+  },
+  {
+    label: 'Respiratory & Chest (5 days)',
+    city: 'Kandy',
+    text: `Day 1 - Monday:
+Cough severity 5, all day
+Sore throat severity 4, morning and evening
+Fatigue severity 6, all day
+
+Day 2 - Tuesday:
+Cough severity 7, worse at night
+Chest tightness severity 5, morning
+Shortness of breath severity 4, during activity
+Fatigue severity 7, all day
+
+Day 3 - Wednesday:
+Cough severity 6, all day
+Fever severity 6, started at noon, lasted 4 hours
+Body aches severity 5, all day
+
+Day 4 - Thursday:
+Cough severity 4, improving
+Chest tightness severity 3, morning only
+Fatigue severity 5, all day
+
+Day 5 - Friday:
+Cough severity 3, mild
+Fatigue severity 3, improving
+Sore throat severity 2, mild`,
+  },
+  {
+    label: 'Digestive Issues (6 days)',
+    city: 'Galle',
+    text: `Day 1 - Monday:
+Nausea severity 6, morning
+Stomach pain severity 5, after meals
+Loss of appetite severity 4, all day
+
+Day 2 - Tuesday:
+Nausea severity 7, morning and afternoon
+Vomiting severity 5, twice in morning
+Stomach pain severity 6, all day
+Fatigue severity 5, all day
+
+Day 3 - Wednesday:
+Nausea severity 4, morning
+Stomach pain severity 4, after meals
+Headache severity 3, afternoon
+Fatigue severity 4, all day
+
+Day 4 - Thursday:
+Stomach pain severity 3, mild
+Bloating severity 4, after meals
+Fatigue severity 3, afternoon
+
+Day 5 - Friday:
+Bloating severity 3, mild
+No other symptoms
+
+Day 6 - Saturday:
+Stomach pain severity 2, mild
+Feeling much better overall`,
+  },
+  {
+    label: 'Stress & Sleep Disorder (5 days)',
+    city: 'Colombo',
+    text: `Day 1 - Monday:
+Headache severity 5, evening
+Insomnia severity 6, could not sleep until 3am
+Anxiety severity 5, evening and night
+
+Day 2 - Tuesday:
+Fatigue severity 7, all day due to poor sleep
+Headache severity 4, afternoon
+Difficulty concentrating severity 6, all day
+Anxiety severity 4, afternoon
+
+Day 3 - Wednesday:
+Insomnia severity 5, slept only 4 hours
+Fatigue severity 6, all day
+Neck pain severity 4, from tension
+Headache severity 5, morning
+
+Day 4 - Thursday:
+Fatigue severity 5, morning
+Headache severity 3, mild
+Difficulty concentrating severity 4, morning
+
+Day 5 - Friday:
+Fatigue severity 4, improving
+Headache severity 2, mild
+Sleep slightly better, 6 hours`,
+  },
+]
+
 export default function JournalInput({ onSubmit, loading }) {
   const [tab, setTab]               = useState('file')
   const [file, setFile]             = useState(null)
   const [pastedText, setPastedText] = useState('')
   const [city, setCity]             = useState('Colombo')
   const [dragging, setDragging]     = useState(false)
+  const [sample, setSample]         = useState('')
   const fileInputRef                = useRef(null)
 
   const handleSubmit = (e) => {
@@ -20,6 +145,16 @@ export default function JournalInput({ onSubmit, loading }) {
     setDragging(false)
     const dropped = e.dataTransfer.files[0]
     if (dropped && dropped.name.endsWith('.txt')) setFile(dropped)
+  }
+
+  const handleSampleSelect = (e) => {
+    const idx = e.target.value
+    setSample(idx)
+    if (idx === '') return
+    const s = SAMPLE_JOURNALS[parseInt(idx)]
+    setPastedText(s.text)
+    setCity(s.city)
+    setTab('text')
   }
 
   const canSubmit = !loading && (tab === 'file' ? !!file : !!pastedText.trim())
@@ -37,7 +172,44 @@ export default function JournalInput({ onSubmit, loading }) {
         <h2 className="text-base font-bold text-slate-800">Symptom Journal</h2>
       </div>
 
-      <div className="p-6 space-y-5">
+      <div className="p-6 space-y-4">
+
+        {/* Sample journal dropdown */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+            Try a Sample Journal
+          </label>
+          <div className="relative">
+            <svg className="w-4 h-4 text-violet-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            <select
+              value={sample}
+              onChange={handleSampleSelect}
+              className="w-full border border-slate-200 rounded-xl pl-9 pr-8 py-2.5 text-sm text-slate-700
+                         focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent
+                         bg-slate-50 appearance-none cursor-pointer transition"
+            >
+              <option value="">— Select a demo journal —</option>
+              {SAMPLE_JOURNALS.map((s, i) => (
+                <option key={i} value={i}>{s.label}</option>
+              ))}
+            </select>
+            <svg className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px bg-slate-100" />
+          <span className="text-xs text-slate-400 font-medium">or use your own</span>
+          <div className="flex-1 h-px bg-slate-100" />
+        </div>
+
         {/* Tabs */}
         <div className="flex bg-slate-100 rounded-xl p-1 gap-1">
           {[
@@ -108,7 +280,7 @@ export default function JournalInput({ onSubmit, loading }) {
             <div className="relative">
               <textarea
                 value={pastedText}
-                onChange={(e) => setPastedText(e.target.value)}
+                onChange={(e) => { setPastedText(e.target.value); setSample('') }}
                 rows={8}
                 placeholder={"Day 1 - Monday:\nHeadache severity 7, started at 2pm\nFatigue severity 5, all day\n\nDay 2 - Tuesday:\n..."}
                 className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700
@@ -118,7 +290,7 @@ export default function JournalInput({ onSubmit, loading }) {
               {pastedText && (
                 <button
                   type="button"
-                  onClick={() => setPastedText('')}
+                  onClick={() => { setPastedText(''); setSample('') }}
                   className="absolute top-2 right-2 text-slate-300 hover:text-slate-500 transition"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
