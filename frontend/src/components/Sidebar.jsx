@@ -150,7 +150,14 @@ export default function Sidebar({ currentAgent, status, risks, suggestions }) {
               <h2 className="text-sm font-bold text-slate-800">Risk Flags</h2>
             </div>
             <span className="text-xs text-slate-400 font-medium">
-              {[...new Set(risks.filter(r => r.symptom).map(r => parseSymptomName(r.symptom).toLowerCase()))].filter(Boolean).length} detected
+              {(() => {
+                const seen = new Set()
+                for (const r of risks.filter(r => r.symptom)) {
+                  const n = parseSymptomName(r.symptom).toLowerCase()
+                  if (n && n !== 'unknown' && n !== 'none') seen.add(n)
+                }
+                return seen.size
+              })()} detected
             </span>
           </div>
           <div className="p-4 space-y-3">
@@ -159,7 +166,7 @@ export default function Sidebar({ currentAgent, status, risks, suggestions }) {
               const seen = {}
               for (const r of risks.filter(r => r.symptom)) {
                 const name = parseSymptomName(r.symptom).toLowerCase()
-                if (!name) continue
+                if (!name || name === 'unknown' || name === 'none') continue
                 if (!seen[name] || (LEVEL_ORDER[r.level] || 0) > (LEVEL_ORDER[seen[name].level] || 0)) {
                   seen[name] = { ...r, _name: parseSymptomName(r.symptom) }
                 }

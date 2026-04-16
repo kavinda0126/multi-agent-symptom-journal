@@ -57,14 +57,17 @@ export default function FindingsPanel({ patterns, weather, symptoms }) {
 
         {/* Frequency chart */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
-              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-bold text-slate-800">Symptom Frequency</h3>
             </div>
-            <h3 className="text-sm font-bold text-slate-800">Symptom Frequency</h3>
+            <span className="text-xs text-slate-400 font-medium">{sortedPatterns.length} unique</span>
           </div>
           <div className="p-5 space-y-3">
             {sortedPatterns.slice(0, 6).map(([name, count], i) => (
@@ -87,17 +90,25 @@ export default function FindingsPanel({ patterns, weather, symptoms }) {
         {/* Timeline */}
         {symptoms && symptoms.length > 0 && (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center">
-                <svg className="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-sm font-bold text-slate-800">Symptom Timeline</h3>
               </div>
-              <h3 className="text-sm font-bold text-slate-800">Symptom Timeline</h3>
+              <span className="text-xs text-slate-400 font-medium">
+                {symptoms.filter(s => { const n = parseSymptomName(s.symptom_name).toLowerCase(); return n && n !== 'unknown' && n !== 'none' }).length} entries
+              </span>
             </div>
             <div className="p-3 max-h-56 overflow-y-auto space-y-1.5">
-              {symptoms.map((s, i) => {
+              {symptoms.filter(s => {
+                const n = parseSymptomName(s.symptom_name).toLowerCase()
+                return n && n !== 'unknown' && n !== 'none'
+              }).map((s, i) => {
                 const sev = parseInt(s.severity) || 0
                 const sevColor = sev >= 8 ? 'text-red-600 bg-red-50' :
                                  sev >= 5 ? 'text-orange-600 bg-orange-50' :
