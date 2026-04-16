@@ -216,4 +216,6 @@ Nausea, severity 6, after meals, lasted 1 hour
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
