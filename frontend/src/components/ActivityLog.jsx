@@ -1,80 +1,77 @@
-import { useEffect, useRef } from 'react'
+export default function ActivityLog({ report, reportPath, medlineLinks }) {
 
-const EVENT_COLOURS = {
-  start:     'text-blue-600',
-  tool_call: 'text-purple-600',
-  api_call:  'text-teal-600',
-  llm_call:  'text-orange-500',
-  output:    'text-green-600',
-  error:     'text-red-600',
-}
-
-export default function ActivityLog({ logs, report, reportPath, medlineLinks }) {
-  const bottomRef = useRef(null)
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [logs])
+  const downloadPDF = () => {
+    if (!report) return
+    const win = window.open('', '_blank')
+    const filename = reportPath ? reportPath.split(/[/\\]/).pop() : 'health_report.pdf'
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${filename}</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a1a; line-height: 1.6; }
+            h1, h2 { color: #1e40af; }
+            pre { white-space: pre-wrap; font-family: inherit; }
+            @media print { button { display: none; } }
+          </style>
+        </head>
+        <body>
+          <button onclick="window.print()" style="margin-bottom:20px;padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
+            Save as PDF
+          </button>
+          <pre>${report.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+        </body>
+      </html>
+    `)
+    win.document.close()
+    win.focus()
+    setTimeout(() => win.print(), 500)
+  }
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-2xl shadow-md p-5">
-        <h2 className="text-lg font-bold text-gray-800 mb-3">Agent Activity Log</h2>
-        {logs && logs.length > 0 ? (
-          <div className="max-h-64 overflow-y-auto font-mono text-xs space-y-1 bg-gray-950 rounded-lg p-3">
-            {logs.map((entry, i) => (
-              <div key={i} className="flex gap-2">
-                <span className="text-gray-500 shrink-0">
-                  {entry.timestamp ? entry.timestamp.slice(11, 19) : '--:--:--'}
-                </span>
-                <span className="text-gray-400 shrink-0 w-14">[{entry.agent}]</span>
-                <span className={`shrink-0 w-16 ${EVENT_COLOURS[entry.event] || 'text-gray-300'}`}>
-                  {entry.event}
-                </span>
-                <span className="text-gray-300 truncate">
-                  {JSON.stringify(entry.data)}
-                </span>
-              </div>
-            ))}
-            <div ref={bottomRef} />
-          </div>
-        ) : (
-          <p className="text-sm text-gray-400 font-mono bg-gray-950 rounded-lg p-3">
-            Waiting for pipeline to start...
-          </p>
-        )}
-      </div>
-
+      {/* MedlinePlus Resources */}
       {medlineLinks && medlineLinks.length > 0 && (
         <div className="bg-white rounded-2xl shadow-md p-5">
-          <h2 className="text-lg font-bold text-gray-800 mb-3">MedlinePlus Resources</h2>
+          <h2 className="text-lg font-bold text-gray-800 mb-3">Health Resources</h2>
           <ul className="space-y-2">
             {medlineLinks.map((link, i) => (
-              <li key={i} className="text-sm">
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 hover:underline font-medium"
-                >
+              <li key={i} className="text-sm flex items-center gap-2">
+                <span className="text-blue-400">→</span>
+                <a href={link.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">
                   {link.title}
                 </a>
-                <span className="text-gray-400 ml-2 capitalize">({link.symptom})</span>
+                <span className="text-gray-400 capitalize">({link.symptom})</span>
               </li>
             ))}
           </ul>
         </div>
       )}
 
+      {/* Final Report */}
       {report && (
         <div className="bg-white rounded-2xl shadow-md p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold text-gray-800">Final Health Report</h2>
-            {reportPath && (
-              <span className="text-xs text-gray-400 font-mono">{reportPath.split(/[/\\]/).pop()}</span>
-            )}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-800">Health Report</h2>
+            <div className="flex items-center gap-3">
+              {reportPath && (
+                <span className="text-xs text-gray-400 font-mono">{reportPath.split(/[/\\]/).pop()}</span>
+              )}
+              <button
+                onClick={downloadPDF}
+                className="flex items-center gap-1.5 bg-blue-600 text-white text-sm px-3 py-1.5
+                           rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download PDF
+              </button>
+            </div>
           </div>
-          <div className="max-h-96 overflow-y-auto prose prose-sm max-w-none bg-gray-50 rounded-lg p-4 text-sm text-gray-800 whitespace-pre-wrap font-mono">
+          <div className="max-h-96 overflow-y-auto bg-gray-50 rounded-xl p-4 text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
             {report}
           </div>
         </div>
