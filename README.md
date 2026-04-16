@@ -132,7 +132,9 @@ pytest -v
 3. Enter your city name for weather correlation
 4. Click **Analyse Journal** — the pipeline starts and each agent's progress is shown in real time
 5. View symptom patterns, risk flags, weather correlations, and lifestyle tips
-6. Read the generated health report and download it as PDF
+6. Read the generated health report and click **Download PDF** to save it
+   - A formatted print view opens in a new tab
+   - Select **Save as PDF** as the printer destination to download the file
 
 ### Example journal format
 
