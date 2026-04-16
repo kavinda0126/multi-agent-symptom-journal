@@ -28,20 +28,17 @@ def run_pipeline(job_id: str, initial_state: SymptomJournalState):
         jobs[job_id]["current_agent"] = "agent1"
         final_state = None
 
-        for chunk in pipeline.stream(initial_state, stream_mode="updates"):
-            for node_name, state_data in chunk.items():
-                # Merge state_data into final_state
-                if final_state is None:
-                    final_state = {**initial_state, **state_data}
-                else:
-                    final_state = {**final_state, **state_data}
+        # stream_mode="values" yields the full accumulated state after each node
+        for full_state in pipeline.stream(initial_state, stream_mode="values"):
+            completed = full_state.get("current_agent", "")
+            final_state = full_state
 
-                # Advance current_agent indicator to the next one
-                idx = AGENT_ORDER.index(node_name) if node_name in AGENT_ORDER else -1
-                if idx >= 0 and idx < len(AGENT_ORDER) - 1:
-                    jobs[job_id]["current_agent"] = AGENT_ORDER[idx + 1]
-                else:
-                    jobs[job_id]["current_agent"] = "done"
+            # Advance indicator to the next agent
+            idx = AGENT_ORDER.index(completed) if completed in AGENT_ORDER else -1
+            if idx >= 0 and idx < len(AGENT_ORDER) - 1:
+                jobs[job_id]["current_agent"] = AGENT_ORDER[idx + 1]
+            else:
+                jobs[job_id]["current_agent"] = "done"
 
         if final_state:
             jobs[job_id]["status"]  = "complete"

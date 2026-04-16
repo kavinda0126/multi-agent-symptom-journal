@@ -17,8 +17,15 @@ def analyze_patterns(symptoms: List[Dict], city: str) -> Dict[str, Any]:
     Raises:
         requests.RequestException: If weather API call fails
     """
-    symptom_names = [s.get("symptom_name", "unknown") for s in symptoms]
-    frequency     = dict(Counter(symptom_names))
+    symptom_names = []
+    for s in symptoms:
+        if not isinstance(s, dict):
+            continue
+        name = s.get("symptom_name", "unknown")
+        if isinstance(name, (list, dict)):
+            name = "unknown"
+        symptom_names.append(str(name) if name else "unknown")
+    frequency = dict(Counter(symptom_names))
 
     weather_data = {}
     weather_days = 0
