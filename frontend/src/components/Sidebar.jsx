@@ -18,12 +18,13 @@ const AGENTS = [
 ]
 
 function agentStatus(agentId, currentAgent, status) {
-  if (status === 'complete' || currentAgent === 'done') return 'done'
+  if (status === 'complete') return 'done'
   if (!currentAgent) return 'idle'
   const ids = AGENTS.map(a => a.id)
   const cur = ids.indexOf(currentAgent)
-  const me  = ids.indexOf(agentId)
-  if (me < cur)  return 'done'
+  if (cur === -1) return 'idle'   // handles 'done' mid-flight gracefully
+  const me = ids.indexOf(agentId)
+  if (me < cur)   return 'done'
   if (me === cur) return 'running'
   return 'idle'
 }

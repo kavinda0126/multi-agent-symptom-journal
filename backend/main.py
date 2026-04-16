@@ -33,12 +33,14 @@ def run_pipeline(job_id: str, initial_state: SymptomJournalState):
             completed = full_state.get("current_agent", "")
             final_state = full_state
 
-            # Advance indicator to the next agent
-            idx = AGENT_ORDER.index(completed) if completed in AGENT_ORDER else -1
-            if idx >= 0 and idx < len(AGENT_ORDER) - 1:
-                jobs[job_id]["current_agent"] = AGENT_ORDER[idx + 1]
-            else:
-                jobs[job_id]["current_agent"] = "done"
+            # Advance indicator only when a known agent has completed
+            if completed in AGENT_ORDER:
+                idx = AGENT_ORDER.index(completed)
+                if idx < len(AGENT_ORDER) - 1:
+                    jobs[job_id]["current_agent"] = AGENT_ORDER[idx + 1]
+                else:
+                    jobs[job_id]["current_agent"] = "done"
+            # if completed is "" (initial emission) leave current_agent unchanged
 
         if final_state:
             jobs[job_id]["status"]  = "complete"
