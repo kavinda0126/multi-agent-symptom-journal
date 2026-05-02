@@ -88,10 +88,6 @@ export default function App() {
               <p className="text-blue-200 text-xs mt-0.5">Multi-Agent Health Intelligence System</p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-white text-xs font-medium">System Online</span>
-          </div>
         </div>
       </header>
 
