@@ -1,4 +1,4 @@
-# Agent 4 — Report Writer (Githadi)
+# Agent 4 — Report Writer
 
 ## Description
 Agent 4 synthesises all findings from Agents 1–3 into a structured, doctor-ready Markdown health report using `llama3.2:3b-instruct-q4_K_M`.

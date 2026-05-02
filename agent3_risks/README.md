@@ -1,4 +1,4 @@
-# Agent 3 — Risk Assessment (Tharindu)
+# Agent 3 — Risk Assessment
 
 ## Description
 Agent 3 evaluates health risks from detected patterns and fetches trusted MedlinePlus health article links. Uses `deepseek-r1:7b-qwen-distill-q4_K_M` for chain-of-thought risk reasoning.

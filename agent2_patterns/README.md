@@ -1,4 +1,4 @@
-# Agent 2 — Pattern Detection (Rachith)
+# Agent 2 — Pattern Detection
 
 ## Description
 Agent 2 analyses symptom frequency from Agent 1's output and fetches 7-day weather data from the Open-Meteo API. It uses `deepseek-r1:7b-qwen-distill-q4_K_M` to reason about correlations.

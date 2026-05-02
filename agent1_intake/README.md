@@ -1,4 +1,4 @@
-# Agent 1 — Symptom Intake (Kavinda)
+# Agent 1 — Symptom Intake
 
 ## Description
 Agent 1 reads a patient's plain-text symptom journal and converts it into structured JSON using `llama3.2:3b-instruct-q4_K_M` via Ollama.
